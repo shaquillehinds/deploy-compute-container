@@ -64,7 +64,6 @@ runs:
 
     - name: Clean Up Dangling images
       if: ${{ env.ssh_key }}
-      shell: bash
       uses: google-github-actions/ssh-compute@v0
       with:
         instance_name: ${{inputs.compute_instance_name}}
