@@ -36,7 +36,7 @@ on:
         required: false
 
 env:
-  ssh_key: ${{secrets.service_account_json_key}}
+  ssh_key: ${{secrets.instance_ssh_private_key}}
 
 jobs:
   build:
