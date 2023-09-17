@@ -1,0 +1,66 @@
+name: Deploy Compute Container
+description: Builds the docker image from the dockerfie in this repository and deploys it to GCP Compute Engine as a container
+inputs:
+  project_id:
+    description: The GCP project id for your container
+    required: true
+  image_name:
+    description: The name of the inage you want to deploy
+    required: true
+  compute_instance_name:
+    description: The name of the instance you're deploying to
+    required: true
+  compute_zone:
+    description: The compute zone of the instance you're deploying to
+    required: true
+  docker_build_command:
+    description: Enter you docker build command here
+    required: true
+  image_tag:
+    description: (Optional) A custom tage for your image
+    default: ${{github.sha}}
+  service_account_json_key:
+    description: The service account JSON key to allow github to perform actions on gcp on your behalf
+    required: true
+  instance_ssh_private_key:
+    description: The ssh private key to the instance or project if the instance allows project wide keys
+
+runs:
+  using: 'composite'
+  steps:
+    - uses: actions/checkout@v3
+
+    - id: auth
+      uses: google-github-actions/auth@v1
+      with:
+        credentials_json: '${{ inputs.service_account_json_key }}'
+
+    - name: Setup Cloud SDK
+      uses: google-github-actions/setup-gcloud@v1
+
+    - name: Build Docker image
+      run: ${{ inputs.docker_build_command }}
+
+    - name: Configure Docker Client
+      run: |-
+        gcloud auth configure-docker --quiet
+    - name: Push Docker Image to Container Registry (GCR)
+      run: |-
+        docker tag ${{inputs.image_name}}:latest gcr.io/${{inputs.project_id}}/${{inputs.image_name}}:latest
+        docker tag ${{inputs.image_name}}:latest gcr.io/${{inputs.project_id}}/${{inputs.image_name}}:${{ inputs.image_tag || github.sha}}
+        docker push gcr.io/${{inputs.project_id}}/${{inputs.image_name}}:latest
+        docker push gcr.io/${{inputs.project_id}}/${{inputs.image_name}}:${{ inputs.image_tag || github.sha}}
+
+    - name: Update compute engine
+      run: |
+        gcloud compute instances update-container ${{inputs.compute_instance_name}} --zone ${{inputs.compute_zone}} \
+          --container-image gcr.io/${{inputs.project_id}}/${{inputs.image_name}}:latest
+
+    - name: Clean Up Dangling images
+      if: ${{ env.ssh_key }}
+      uses: google-github-actions/ssh-compute@v0
+      with:
+        instance_name: ${{inputs.compute_instance_name}}
+        zone: ${{inputs.compute_zone}}
+        ssh_private_key: '${{ inputs.instance_ssh_private_key }}'
+        command: docker image prune -f
