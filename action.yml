@@ -1,4 +1,5 @@
 name: Deploy Compute Container
+author: shaquillehinds
 description: Builds the docker image from the dockerfie in this repository and deploys it to GCP Compute Engine as a container
 inputs:
   project_id:
