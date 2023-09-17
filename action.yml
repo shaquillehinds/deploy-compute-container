@@ -40,12 +40,16 @@ runs:
       uses: google-github-actions/setup-gcloud@v1
 
     - name: Build Docker image
+      shell: bash
       run: ${{ inputs.docker_build_command }}
 
     - name: Configure Docker Client
+      shell: bash
       run: |-
         gcloud auth configure-docker --quiet
+
     - name: Push Docker Image to Container Registry (GCR)
+      shell: bash
       run: |-
         docker tag ${{inputs.image_name}}:latest gcr.io/${{inputs.project_id}}/${{inputs.image_name}}:latest
         docker tag ${{inputs.image_name}}:latest gcr.io/${{inputs.project_id}}/${{inputs.image_name}}:${{ inputs.image_tag || github.sha}}
@@ -53,12 +57,14 @@ runs:
         docker push gcr.io/${{inputs.project_id}}/${{inputs.image_name}}:${{ inputs.image_tag || github.sha}}
 
     - name: Update compute engine
+      shell: bash
       run: |
         gcloud compute instances update-container ${{inputs.compute_instance_name}} --zone ${{inputs.compute_zone}} \
           --container-image gcr.io/${{inputs.project_id}}/${{inputs.image_name}}:latest
 
     - name: Clean Up Dangling images
       if: ${{ env.ssh_key }}
+      shell: bash
       uses: google-github-actions/ssh-compute@v0
       with:
         instance_name: ${{inputs.compute_instance_name}}
