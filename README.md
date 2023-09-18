@@ -4,6 +4,35 @@
 
 Builds the docker image from the dockerfie in this repository and deploys it to GCP Compute Engine as a container using GCR as the repo.
 
+## Example
+
+```
+name: Build And Deploy Staging Image
+
+on:
+  push:
+    branches: ['staging']
+  pull_request:
+    branches: ['staging']
+
+env:
+ IMAGE_NAME: my-image
+
+jobs:
+  buildAndDeploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: shaquillehinds/deploy-compute-container@v0.1.2
+        with:
+          project_id: my-project-id
+          image_name: $IMAGE_NAME
+          compute_instance_name: my-instance-staging
+          compute_zone: us-central1-a
+          service_account_json_key: ${{secrets.SERVICE_ACCOUNT_KEY}}
+          instance_container_env: PORT=3001,NODE_ENV=production
+          docker_build_command: docker build -t $IMAGE_NAME:latest .
+```
+
 ## Required Inputs
 
 - project_id
