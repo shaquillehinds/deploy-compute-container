@@ -58,6 +58,10 @@ runs:
         docker push gcr.io/${{inputs.project_id}}/${{inputs.image_name}}:latest
         docker push gcr.io/${{inputs.project_id}}/${{inputs.image_name}}:${{ inputs.image_tag || github.sha}}
 
+    - name: Set Action Path (So updateInstance.sh can be found)
+      run: echo "${{ github.action_path }}" >> $GITHUB_PATH
+      shell: bash
+
     - name: Update/Create Compute Engine
       shell: bash
       run: updateInstance.sh ${{inputs.compute_instance_name}} ${{inputs.compute_zone}} gcr.io/${{inputs.project_id}}/${{inputs.image_name}}:latest ${{inputs.instance_container_env}}
