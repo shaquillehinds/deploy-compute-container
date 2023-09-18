@@ -27,6 +27,9 @@ inputs:
     description: The ssh private key to the instance or project if the instance allows project wide keys
   instance_container_env:
     description: Any environment variables you want to pass to the instance. These won't be available on the build phase, only when the container is mounted as an instance. e.g PORT=3001,NODE_ENV=production
+  machine_type:
+    description: Specifies the machine type used for the instances. To get a list of available machine types, run 'gcloud compute machine-types list'. If unspecified, the default type is n1-standard-1
+    default: e2-micro
 
 runs:
   using: 'composite'
@@ -64,7 +67,7 @@ runs:
 
     - name: Update/Create Compute Engine
       shell: bash
-      run: updateInstance.sh ${{inputs.compute_instance_name}} ${{inputs.compute_zone}} gcr.io/${{inputs.project_id}}/${{inputs.image_name}}:latest ${{inputs.instance_container_env}}
+      run: updateInstance.sh ${{inputs.compute_instance_name}} ${{inputs.compute_zone}} gcr.io/${{inputs.project_id}}/${{inputs.image_name}}:latest ${{inputs.machine_type}} ${{inputs.instance_container_env}}
 
     - name: Clean Up Dangling images
       if: ${{ inputs.instance_ssh_private_key }}
