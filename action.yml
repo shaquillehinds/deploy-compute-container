@@ -67,7 +67,7 @@ runs:
       run: updateInstance.sh ${{inputs.compute_instance_name}} ${{inputs.compute_zone}} gcr.io/${{inputs.project_id}}/${{inputs.image_name}}:latest ${{inputs.instance_container_env}}
 
     - name: Clean Up Dangling images
-      if: ${{ env.ssh_key }}
+      if: ${{ inputs.instance_ssh_private_key }}
       uses: google-github-actions/ssh-compute@v0
       with:
         instance_name: ${{inputs.compute_instance_name}}
