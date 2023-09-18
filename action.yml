@@ -25,6 +25,8 @@ inputs:
     required: true
   instance_ssh_private_key:
     description: The ssh private key to the instance or project if the instance allows project wide keys
+  instance_container_env:
+    description: Any environment variables you want to pass to the instance. These won't be available on the build phase, only when the container is mounted as an instance. e.g PORT=3001,NODE_ENV=production
 
 runs:
   using: 'composite'
@@ -56,11 +58,9 @@ runs:
         docker push gcr.io/${{inputs.project_id}}/${{inputs.image_name}}:latest
         docker push gcr.io/${{inputs.project_id}}/${{inputs.image_name}}:${{ inputs.image_tag || github.sha}}
 
-    - name: Update compute engine
+    - name: Update/Create Compute Engine
       shell: bash
-      run: |
-        gcloud compute instances update-container ${{inputs.compute_instance_name}} --zone ${{inputs.compute_zone}} \
-          --container-image gcr.io/${{inputs.project_id}}/${{inputs.image_name}}:latest
+      run: updateInstance.sh ${{inputs.compute_instance_name}} ${{inputs.compute_zone}} gcr.io/${{inputs.project_id}}/${{inputs.image_name}}:latest ${{inputs.instance_container_env}}
 
     - name: Clean Up Dangling images
       if: ${{ env.ssh_key }}
