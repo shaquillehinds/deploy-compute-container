@@ -30,6 +30,9 @@ inputs:
   machine_type:
     description: Specifies the machine type used for the instances. To get a list of available machine types, run 'gcloud compute machine-types list'. If unspecified, the default type is n1-standard-1
     default: e2-micro
+  artifact_registry_location:
+    description: The location of the artifact registry
+    default: us-central1
 
 runs:
   using: 'composite'
@@ -64,6 +67,18 @@ runs:
     - name: Set Action Path (So updateInstance.sh can be found)
       run: echo "${{ github.action_path }}" >> $GITHUB_PATH
       shell: bash
+
+    - name: Check Artifact Registry For Repository
+      shell: bash
+      run: checkRegistry.sh ${{inputs.image_name}} ${{inputs.artifact_registry_location}}
+
+    - name: Push Docker Image to Artifact Registry
+      shell: bash
+      run: |-
+        docker tag ${{inputs.image_name}}:latest ${{inputs.artifact_registry_location}}-docker.pkg.dev/${{inputs.project_id}}/${{inputs.image_name}}:latest
+        docker tag ${{inputs.image_name}}:latest ${{inputs.artifact_registry_location}}-docker.pkg.dev/${{inputs.project_id}}/${{inputs.image_name}}:${{ inputs.image_tag || github.sha}}
+        docker push ${{inputs.artifact_registry_location}}-docker.pkg.dev/${{inputs.project_id}}/${{inputs.image_name}}:latest
+        docker push ${{inputs.artifact_registry_location}}-docker.pkg.dev/${{inputs.project_id}}/${{inputs.image_name}}:${{ inputs.image_tag || github.sha}}
 
     - name: Update/Create Compute Engine
       shell: bash

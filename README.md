@@ -65,10 +65,13 @@ jobs:
   - default: e2-micro
 - instance_container_env:
   - description: Any environment variables you want to pass to the instance. These won't be available on the build phase, only when the container is mounted as an instance. e.g PORT=3001,NODE_ENV=production
+- artifact_registry_location:
+  - description: The location of the artifact registry
+  - default: us-central1
 
 ### This action requires you to have a service account json key to work and the service account must have Storage Admin, Compute Admin and IAP=secured Tunnel User permissions. I might automate this later, who knows.
 
-1. Create a service account with roles of Storage Admin, Compute Admin and IAP-secured Tunnel User
+1. Create a service account with roles of Storage Admin, Artifact Registry Administrator, Compute Admin and IAP-secured Tunnel User
 2. Generate and download a json key for that service account
 3. Edit your compute engine default service account and grant access to your new service account with the role Service Account User
 4. Go to the project of this workflow on github. Settings > Secrets & Variables > Actions
