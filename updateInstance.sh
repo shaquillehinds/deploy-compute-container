@@ -25,7 +25,7 @@ if [ -z "${instancesList}" ]; then
 else 
 
   echo "Instance found"
-  ecno "Running: gcloud compute instances update-container $1 --zone=$2 --container-image=$3 --container-env=$5"
+  echo "Running: gcloud compute instances update-container $1 --zone=$2 --container-image=$3 --container-env=$5"
 
   gcloud compute instances update-container $1 --zone=$2 --container-image=$3 --container-env=$5
 fi
