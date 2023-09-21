@@ -66,14 +66,14 @@ runs:
     - name: Push Docker Image to Artifact Registry
       shell: bash
       run: |-
-        docker tag ${{inputs.image_name}}:latest ${{CONTAINER_IMAGE}}:latest
-        docker tag ${{inputs.image_name}}:latest ${{CONTAINER_IMAGE}}:${{ inputs.image_tag || github.sha}}
-        docker push ${{CONTAINER_IMAGE}}:latest
-        docker push ${{CONTAINER_IMAGE}}:${{ inputs.image_tag || github.sha}}
+        docker tag ${{inputs.image_name}}:latest ${{env.CONTAINER_IMAGE}}:latest
+        docker tag ${{inputs.image_name}}:latest ${{env.CONTAINER_IMAGE}}:${{ inputs.image_tag || github.sha}}
+        docker push ${{env.CONTAINER_IMAGE}}:latest
+        docker push ${{env.CONTAINER_IMAGE}}:${{ inputs.image_tag || github.sha}}
 
     - name: Update/Create Compute Engine
       shell: bash
-      run: updateInstance.sh ${{inputs.compute_instance_name}} ${{inputs.compute_zone}} ${{CONTAINER_IMAGE}}:latest ${{inputs.machine_type}} ${{inputs.instance_container_env}}
+      run: updateInstance.sh ${{inputs.compute_instance_name}} ${{inputs.compute_zone}} ${{env.CONTAINER_IMAGE}}:latest ${{inputs.machine_type}} ${{inputs.instance_container_env}}
 
     - name: Clean Up Dangling images
       if: ${{ inputs.instance_ssh_private_key }}
