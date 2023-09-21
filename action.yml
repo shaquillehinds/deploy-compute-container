@@ -75,10 +75,10 @@ runs:
     - name: Push Docker Image to Artifact Registry
       shell: bash
       run: |-
-        docker tag ${{inputs.image_name}}:latest ${{inputs.artifact_registry_location}}-docker.pkg.dev/${{inputs.project_id}}/${{inputs.image_name}}:latest
-        docker tag ${{inputs.image_name}}:latest ${{inputs.artifact_registry_location}}-docker.pkg.dev/${{inputs.project_id}}/${{inputs.image_name}}:${{ inputs.image_tag || github.sha}}
-        docker push ${{inputs.artifact_registry_location}}-docker.pkg.dev/${{inputs.project_id}}/${{inputs.image_name}}:latest
-        docker push ${{inputs.artifact_registry_location}}-docker.pkg.dev/${{inputs.project_id}}/${{inputs.image_name}}:${{ inputs.image_tag || github.sha}}
+        docker tag ${{inputs.image_name}}:latest ${{inputs.artifact_registry_location}}-docker.pkg.dev/${{inputs.project_id}}/${{inputs.image_name}}-images/${{inputs.image_name}}:latest
+        docker tag ${{inputs.image_name}}:latest ${{inputs.artifact_registry_location}}-docker.pkg.dev/${{inputs.project_id}}/${{inputs.image_name}}-images/${{inputs.image_name}}:${{ inputs.image_tag || github.sha}}
+        docker push ${{inputs.artifact_registry_location}}-docker.pkg.dev/${{inputs.project_id}}/${{inputs.image_name}}-images/${{inputs.image_name}}:latest
+        docker push ${{inputs.artifact_registry_location}}-docker.pkg.dev/${{inputs.project_id}}/${{inputs.image_name}}-images/${{inputs.image_name}}:${{ inputs.image_tag || github.sha}}
 
     - name: Update/Create Compute Engine
       shell: bash
