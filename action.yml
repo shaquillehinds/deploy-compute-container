@@ -34,9 +34,6 @@ inputs:
     description: The location of the artifact registry
     default: us-central1
 
-env:
-  registry_container_image: ${{inputs.artifact_registry_location}}-docker.pkg.dev/${{inputs.project_id}}/${{inputs.image_name}}-images/${{inputs.image_name}}
-
 runs:
   using: 'composite'
   steps:
@@ -62,17 +59,20 @@ runs:
       shell: bash
       run: checkRegistry.sh ${{inputs.image_name}} ${{inputs.artifact_registry_location}}
 
+    - name: Set CONTAINER_IMAGE
+      run: echo "CONTAINER_IMAGE='${{inputs.artifact_registry_location}}-docker.pkg.dev/${{inputs.project_id}}/${{inputs.image_name}}-images/${{inputs.image_name}}'" >> $GITHUB_ENV
+
     - name: Push Docker Image to Artifact Registry
       shell: bash
       run: |-
-        docker tag ${{inputs.image_name}}:latest ${{env.registry_container_image}}:latest
-        docker tag ${{inputs.image_name}}:latest ${{env.registry_container_image}}:${{ inputs.image_tag || github.sha}}
-        docker push ${{env.registry_container_image}}:latest
-        docker push ${{env.registry_container_image}}:${{ inputs.image_tag || github.sha}}
+        docker tag ${{inputs.image_name}}:latest ${{CONTAINER_IMAGE}}:latest
+        docker tag ${{inputs.image_name}}:latest ${{CONTAINER_IMAGE}}:${{ inputs.image_tag || github.sha}}
+        docker push ${{CONTAINER_IMAGE}}:latest
+        docker push ${{CONTAINER_IMAGE}}:${{ inputs.image_tag || github.sha}}
 
     - name: Update/Create Compute Engine
       shell: bash
-      run: updateInstance.sh ${{inputs.compute_instance_name}} ${{inputs.compute_zone}} ${{env.registry_container_image}}:latest ${{inputs.machine_type}} ${{inputs.instance_container_env}}
+      run: updateInstance.sh ${{inputs.compute_instance_name}} ${{inputs.compute_zone}} ${{CONTAINER_IMAGE}}:latest ${{inputs.machine_type}} ${{inputs.instance_container_env}}
 
     - name: Clean Up Dangling images
       if: ${{ inputs.instance_ssh_private_key }}
