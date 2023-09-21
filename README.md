@@ -2,7 +2,7 @@
 
 ## Description
 
-Builds the docker image from the dockerfie in this repository and deploys it to GCP Compute Engine as a container using GCR as the repo.
+Builds the docker image from the dockerfie in this repository and deploys it to GCP Compute Engine as a container using artifact registry
 
 ## Example
 
@@ -36,10 +36,8 @@ jobs:
 ## Required Inputs
 
 - project_id
-
   - description: The GCP project id for your container
   - required: true
-
 - image_name:
   - description: The name of the inage you want to deploy
     -required: true

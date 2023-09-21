@@ -34,6 +34,9 @@ inputs:
     description: The location of the artifact registry
     default: us-central1
 
+env:
+  registry_container_image: ${{inputs.artifact_registry_location}}-docker.pkg.dev/${{inputs.project_id}}/${{inputs.image_name}}-images/${{inputs.image_name}}
+
 runs:
   using: 'composite'
   steps:
@@ -51,19 +54,6 @@ runs:
       shell: bash
       run: ${{ inputs.docker_build_command }}
 
-    - name: Configure Docker Client
-      shell: bash
-      run: |-
-        gcloud auth configure-docker --quiet
-
-    - name: Push Docker Image to Container Registry (GCR)
-      shell: bash
-      run: |-
-        docker tag ${{inputs.image_name}}:latest gcr.io/${{inputs.project_id}}/${{inputs.image_name}}:latest
-        docker tag ${{inputs.image_name}}:latest gcr.io/${{inputs.project_id}}/${{inputs.image_name}}:${{ inputs.image_tag || github.sha}}
-        docker push gcr.io/${{inputs.project_id}}/${{inputs.image_name}}:latest
-        docker push gcr.io/${{inputs.project_id}}/${{inputs.image_name}}:${{ inputs.image_tag || github.sha}}
-
     - name: Set Action Path (So updateInstance.sh can be found)
       run: echo "${{ github.action_path }}" >> $GITHUB_PATH
       shell: bash
@@ -75,14 +65,14 @@ runs:
     - name: Push Docker Image to Artifact Registry
       shell: bash
       run: |-
-        docker tag ${{inputs.image_name}}:latest ${{inputs.artifact_registry_location}}-docker.pkg.dev/${{inputs.project_id}}/${{inputs.image_name}}-images/${{inputs.image_name}}:latest
-        docker tag ${{inputs.image_name}}:latest ${{inputs.artifact_registry_location}}-docker.pkg.dev/${{inputs.project_id}}/${{inputs.image_name}}-images/${{inputs.image_name}}:${{ inputs.image_tag || github.sha}}
-        docker push ${{inputs.artifact_registry_location}}-docker.pkg.dev/${{inputs.project_id}}/${{inputs.image_name}}-images/${{inputs.image_name}}:latest
-        docker push ${{inputs.artifact_registry_location}}-docker.pkg.dev/${{inputs.project_id}}/${{inputs.image_name}}-images/${{inputs.image_name}}:${{ inputs.image_tag || github.sha}}
+        docker tag ${{inputs.image_name}}:latest ${{env.registry_container_image}}:latest
+        docker tag ${{inputs.image_name}}:latest ${{env.registry_container_image}}:${{ inputs.image_tag || github.sha}}
+        docker push ${{env.registry_container_image}}:latest
+        docker push ${{env.registry_container_image}}:${{ inputs.image_tag || github.sha}}
 
     - name: Update/Create Compute Engine
       shell: bash
-      run: updateInstance.sh ${{inputs.compute_instance_name}} ${{inputs.compute_zone}} gcr.io/${{inputs.project_id}}/${{inputs.image_name}}:latest ${{inputs.machine_type}} ${{inputs.instance_container_env}}
+      run: updateInstance.sh ${{inputs.compute_instance_name}} ${{inputs.compute_zone}} ${{env.registry_container_image}}:latest ${{inputs.machine_type}} ${{inputs.instance_container_env}}
 
     - name: Clean Up Dangling images
       if: ${{ inputs.instance_ssh_private_key }}
