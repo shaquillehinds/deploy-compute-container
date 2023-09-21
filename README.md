@@ -33,7 +33,7 @@ jobs:
           docker_build_command: docker build -t $IMAGE_NAME:latest .
 ```
 
-## Required Inputs
+## Inputs
 
 - project_id
   - description: The GCP project id for your container
