@@ -60,6 +60,7 @@ runs:
       run: checkRegistry.sh ${{inputs.image_name}} ${{inputs.artifact_registry_location}}
 
     - name: Set CONTAINER_IMAGE
+      shell: bash
       run: echo "CONTAINER_IMAGE='${{inputs.artifact_registry_location}}-docker.pkg.dev/${{inputs.project_id}}/${{inputs.image_name}}-images/${{inputs.image_name}}'" >> $GITHUB_ENV
 
     - name: Push Docker Image to Artifact Registry
