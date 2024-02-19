@@ -73,7 +73,7 @@ runs:
 
     - name: Update/Create Compute Engine
       shell: bash
-      run: updateInstance.sh ${{inputs.compute_instance_name}} ${{inputs.compute_zone}} ${{env.CONTAINER_IMAGE}}:latest ${{inputs.machine_type}} ${{inputs.instance_container_env}}
+      run: updateInstance.sh ${{inputs.compute_instance_name}} ${{inputs.compute_zone}} ${{env.CONTAINER_IMAGE}}:${{ inputs.image_tag || github.sha}} ${{inputs.machine_type}} ${{inputs.instance_container_env}}
 
     - name: Clean Up Dangling images
       if: ${{ inputs.instance_ssh_private_key }}

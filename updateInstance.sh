@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ -z $1 ] || [ -z $2 ] || [ -z $3 ]; then
-  echo "Missing parameters, parameter 1 must be instance name, 2 must be then instance zone, 3 must be the container image. Paramter 4 is optional and that is container env vars, e.g PORT=3001,NODE_ENV=production"
+  echo "Missing parameters, parameter 1 must be instance name, 2 must be then instance zone, 3 must be the container image. Parameter 4 is the machine type which is optional, the default is e2-micro. Parameter 5 is optional and that is container env vars, e.g PORT=3001,NODE_ENV=production"
   exit 1
 fi
 
