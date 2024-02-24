@@ -58,6 +58,9 @@ jobs:
   - required: true
 - instance_ssh_private_key:
   - description: The ssh private key to the instance or project if the instance allows project wide keys
+- instance_ssh_username:
+  - description: The ssh username for the ssh key
+  - default: root
 - machine_type:
   - description: Specifies the machine type used for the instances. To get a list of available machine types, run 'gcloud compute machine-types list'. If unspecified, the default type is n1-standard-1
   - default: e2-micro

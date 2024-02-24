@@ -23,6 +23,9 @@ inputs:
   service_account_json_key:
     description: The service account JSON key to allow github to perform actions on gcp on your behalf
     required: true
+  instance_ssh_username:
+    description: The ssh username for the ssh key
+    default: root
   instance_ssh_private_key:
     description: The ssh private key to the instance or project if the instance allows project wide keys
   instance_container_env:
@@ -37,15 +40,15 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - id: auth
-      uses: google-github-actions/auth@v1
+      uses: google-github-actions/auth@v2
       with:
         credentials_json: '${{ inputs.service_account_json_key }}'
 
     - name: Setup Cloud SDK
-      uses: google-github-actions/setup-gcloud@v1
+      uses: google-github-actions/setup-gcloud@v2
 
     - name: Build Docker image
       shell: bash
@@ -77,9 +80,10 @@ runs:
 
     - name: Clean Up Dangling images
       if: ${{ inputs.instance_ssh_private_key }}
-      uses: google-github-actions/ssh-compute@v0
+      uses: google-github-actions/ssh-compute@v1
       with:
         instance_name: ${{inputs.compute_instance_name}}
         zone: ${{inputs.compute_zone}}
         ssh_private_key: '${{ inputs.instance_ssh_private_key }}'
-        command: docker image prune -f
+        user: ${{inputs.instance_ssh_username}}
+        command: docker rmi $(docker images ${{env.CONTAINER_IMAGE}} -a -q)
