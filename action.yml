@@ -82,7 +82,7 @@ runs:
         zone: ${{inputs.compute_zone}}
         ssh_private_key: '${{ inputs.instance_ssh_private_key }}'
         user: ${{inputs.instance_ssh_username}}
-        command: docker rmi $(docker images ${{env.CONTAINER_IMAGE}} -a -q) || true
+        command: 'docker rmi $(docker images ${{env.CONTAINER_IMAGE}} -a -q) || true'
 
     # - name: Update/Create Compute Engine
     #   shell: bash
