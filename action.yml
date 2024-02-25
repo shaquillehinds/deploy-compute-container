@@ -50,29 +50,29 @@ runs:
     - name: Setup Cloud SDK
       uses: google-github-actions/setup-gcloud@v2
 
-    - name: Build Docker image
-      shell: bash
-      run: ${{ inputs.docker_build_command }}
+    # - name: Build Docker image
+    #   shell: bash
+    #   run: ${{ inputs.docker_build_command }}
 
-    - name: Set Action Path (So updateInstance.sh can be found)
-      run: echo "${{ github.action_path }}" >> $GITHUB_PATH
-      shell: bash
+    # - name: Set Action Path (So updateInstance.sh can be found)
+    #   run: echo "${{ github.action_path }}" >> $GITHUB_PATH
+    #   shell: bash
 
-    - name: Check Artifact Registry For Repository
-      shell: bash
-      run: checkRegistry.sh ${{inputs.image_name}} ${{inputs.artifact_registry_location}}
+    # - name: Check Artifact Registry For Repository
+    #   shell: bash
+    #   run: checkRegistry.sh ${{inputs.image_name}} ${{inputs.artifact_registry_location}}
 
-    - name: Set CONTAINER_IMAGE
-      shell: bash
-      run: echo "CONTAINER_IMAGE='${{inputs.artifact_registry_location}}-docker.pkg.dev/${{inputs.project_id}}/${{inputs.image_name}}-images/${{inputs.image_name}}'" >> $GITHUB_ENV
+    # - name: Set CONTAINER_IMAGE
+    #   shell: bash
+    #   run: echo "CONTAINER_IMAGE='${{inputs.artifact_registry_location}}-docker.pkg.dev/${{inputs.project_id}}/${{inputs.image_name}}-images/${{inputs.image_name}}'" >> $GITHUB_ENV
 
-    - name: Push Docker Image to Artifact Registry
-      shell: bash
-      run: |-
-        docker tag ${{inputs.image_name}}:latest ${{env.CONTAINER_IMAGE}}:latest
-        docker tag ${{inputs.image_name}}:latest ${{env.CONTAINER_IMAGE}}:${{ inputs.image_tag || github.sha}}
-        docker push ${{env.CONTAINER_IMAGE}}:latest
-        docker push ${{env.CONTAINER_IMAGE}}:${{ inputs.image_tag || github.sha}}
+    # - name: Push Docker Image to Artifact Registry
+    #   shell: bash
+    #   run: |-
+    #     docker tag ${{inputs.image_name}}:latest ${{env.CONTAINER_IMAGE}}:latest
+    #     docker tag ${{inputs.image_name}}:latest ${{env.CONTAINER_IMAGE}}:${{ inputs.image_tag || github.sha}}
+    #     docker push ${{env.CONTAINER_IMAGE}}:latest
+    #     docker push ${{env.CONTAINER_IMAGE}}:${{ inputs.image_tag || github.sha}}
 
     - name: Clean Up Dangling images
       if: ${{ inputs.instance_ssh_private_key }}
@@ -82,8 +82,8 @@ runs:
         zone: ${{inputs.compute_zone}}
         ssh_private_key: '${{ inputs.instance_ssh_private_key }}'
         user: ${{inputs.instance_ssh_username}}
-        command: docker rmi \$(docker images ${{env.CONTAINER_IMAGE}} -a -q)
+        command: docker rmi $(docker images ${{env.CONTAINER_IMAGE}} -a -q)
 
-    - name: Update/Create Compute Engine
-      shell: bash
-      run: updateInstance.sh ${{inputs.compute_instance_name}} ${{inputs.compute_zone}} ${{env.CONTAINER_IMAGE}}:${{ inputs.image_tag || github.sha}} ${{inputs.machine_type}} ${{inputs.instance_container_env}}
+    # - name: Update/Create Compute Engine
+    #   shell: bash
+    #   run: updateInstance.sh ${{inputs.compute_instance_name}} ${{inputs.compute_zone}} ${{env.CONTAINER_IMAGE}}:${{ inputs.image_tag || github.sha}} ${{inputs.machine_type}} ${{inputs.instance_container_env}}
