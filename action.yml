@@ -74,10 +74,6 @@ runs:
         docker push ${{env.CONTAINER_IMAGE}}:latest
         docker push ${{env.CONTAINER_IMAGE}}:${{ inputs.image_tag || github.sha}}
 
-    - name: Update/Create Compute Engine
-      shell: bash
-      run: updateInstance.sh ${{inputs.compute_instance_name}} ${{inputs.compute_zone}} ${{env.CONTAINER_IMAGE}}:${{ inputs.image_tag || github.sha}} ${{inputs.machine_type}} ${{inputs.instance_container_env}}
-
     - name: Clean Up Dangling images
       if: ${{ inputs.instance_ssh_private_key }}
       uses: google-github-actions/ssh-compute@v1
@@ -87,3 +83,7 @@ runs:
         ssh_private_key: '${{ inputs.instance_ssh_private_key }}'
         user: ${{inputs.instance_ssh_username}}
         command: docker rmi \$(docker images ${{env.CONTAINER_IMAGE}} -a -q)
+
+    - name: Update/Create Compute Engine
+      shell: bash
+      run: updateInstance.sh ${{inputs.compute_instance_name}} ${{inputs.compute_zone}} ${{env.CONTAINER_IMAGE}}:${{ inputs.image_tag || github.sha}} ${{inputs.machine_type}} ${{inputs.instance_container_env}}
